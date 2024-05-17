@@ -10,40 +10,43 @@ on:
   watch:
     types: [started]
 env:
-  src_dir: /opt/rt-n56u
-  build_dir: /opt/rt-n56u/toolchain-mipsel
-  toolchain_dir: /opt/rt-n56u/toolchain-mipsel/toolchain-3.4.x
-  src_git: https://github.com/vipshmily/Padavan-3.4-KVR.git
+  CT_DIR: crosstool-ng
+  CT_URL: https://github.com/vipshmily/Padavan-3.4-KVR.git
+  TC_DIR: crosstool-ng/toolchain-mipsel
+  BD_DIR: crosstool-ng/toolchain-mipsel/toolchain-3.4.x
 jobs:
   build:
-    name: Build Padavan toolchain
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [mipsel-linux-uclibc, mipsel-linux-uclibc-gcc8, mipsel-linux-uclibc-gcc10, mipsel-linux-uclibc-gcc12]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@main
       - name: Prepare environment
         run: |
           sudo apt update
-          sudo apt install unzip libtool-bin curl cmake gperf gawk flex bison nano xxd \
-            fakeroot kmod cpio git python3-docutils gettext automake autopoint \
+          sudo apt install unzip libtool-bin ccache curl cmake gperf gawk flex bison nano xxd \
+            fakeroot kmod cpio bc zip git python3-docutils gettext automake autopoint \
             texinfo build-essential help2man pkg-config zlib1g-dev libgmp3-dev \
             libmpc-dev libmpfr-dev libncurses5-dev libltdl-dev wget libc-dev-bin
       - name: Clone source code
         run: |
-          git clone --depth=1 $src_git $src_dir
+          mkdir -p $CT_DIR
+          git clone --depth=1 $CT_URL $CT_DIR
       - name: Build toolchain
         run: |
-          cd $build_dir
+          cd $TC_DIR
           ./clean_toolchain
           ./build_toolchain
-          cd $toolchain_dir
-          tar cJf ../mipsel-linux-uclibc.tar.xz *
-      - uses: actions/upload-artifact@v3
+          cd $BD_DIR
+          tar cJf ${{ matrix.target }}.tar.xz *
+      - uses: actions/upload-artifact@main
         with:
-          name: toolchain
-          path: ${{ env.build_dir }}/mipsel-linux-uclibc.tar.xz
-      - uses: svenstaro/upload-release-action@2.3.0
+          name: ${{ matrix.target }}
+          path: ${{ env.BD_DIR}}/${{ matrix.target }}.tar.xz
+      - uses: ncipollo/release-action@main
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.build_dir }}/mipsel-linux-uclibc.tar.xz
+          token: ${{ github.token }}
           tag: toolchain
-          overwrite: true
+          artifacts: ${{ env.BD_DIR}}/${{ matrix.target }}.tar.xz
+          allowUpdates: true

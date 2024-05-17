@@ -24,7 +24,7 @@ jobs:
       - name: Clone source code
         run: |
           mkdir -p $CT_DIR
-          git clone -b tsl --depth=1 $CT_URL $CT_DIR
+          git clone --depth=1 $CT_URL $CT_DIR
       - name: Update components
         run: |
           if [ -d toolchain ]; then cp -r toolchain/* $TC_DIR; fi

@@ -1,17 +1,17 @@
-name: Padavan_3.4_kernal_toolchain
+name: build toolchain
 
 on:
   workflow_dispatch:
 env:
   CT_DIR: crosstool-ng
-  CT_URL: https://github.com/vipshmily/Padavan-3.4-KVR.git
+  CT_URL: https://github.com/vipshmily/padavan-4.4.git
   TC_DIR: crosstool-ng/toolchain
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [mipsel-linux-uclibc, mipsel-linux-uclibc-gcc8, mipsel-linux-uclibc-gcc10, mipsel-linux-uclibc-gcc12]
+        target: [mipsel-linux-uclibc, mipsel-linux-musl, mipsel-linux-uclibc-gcc7, mipsel-linux-musl-gcc7, mipsel-linux-uclibc-gcc13, mipsel-linux-musl-gcc13]
     steps:
       - uses: actions/checkout@main
       - name: Prepare environment
@@ -25,17 +25,13 @@ jobs:
         run: |
           mkdir -p $CT_DIR
           git clone --depth=1 $CT_URL $CT_DIR
-      - name: Update components
-        run: |
-          if [ -d toolchain ]; then cp -r toolchain/* $TC_DIR; fi
       - name: Build toolchain
         run: |
-          make CT_TARGET=${CT_TARGET} CT_VERSION=${CT_VERSION}
-          cd crosstool-ng-${CT_VERSION}/toolchain-mipsel
-          tar cJf ../../${CT_TARGET}.tar.xz *
+          make CT_TARGET=${CT_TARGET}
+          cd toolchain-mipsel
+          tar cJf ../${CT_TARGET}.tar.xz *
         env:
           CT_TARGET: ${{ matrix.target }}
-          CT_VERSION: 1.26.0
         working-directory: ${{ env.TC_DIR}}
       - uses: actions/upload-artifact@main
         with:
@@ -43,7 +39,7 @@ jobs:
           path: ${{ env.TC_DIR}}/${{ matrix.target }}.tar.xz
       - uses: ncipollo/release-action@main
         with:
-          token: ${{ github.token }}
           tag: toolchain
           artifacts: ${{ env.TC_DIR}}/${{ matrix.target }}.tar.xz
           allowUpdates: true
+          omitBodyDuringUpdate: true

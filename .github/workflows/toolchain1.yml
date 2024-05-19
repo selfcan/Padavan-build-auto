@@ -4,9 +4,8 @@ on:
   workflow_dispatch:
 env:
   SRC_DIR: /opt/rt-n56u
-  CT_DIR: crosstool-ng
-  TC_DIR: crosstool-ng/toolchain-mipsel
-  BD_DIR: crosstool-ng/toolchain-mipsel/toolchain-3.4.x
+  TC_DIR: /opt/rt-n56u/toolchain-mipsel
+  BD_DIR: /opt/rt-n56u/toolchain-mipsel/toolchain-3.4.x
   CT_URL: https://github.com/vipshmily/Padavan-3.4-KVR.git
 jobs:
   build:
@@ -25,11 +24,11 @@ jobs:
             libmpc-dev libmpfr-dev libncurses5-dev libltdl-dev wget libc-dev-bin
       - name: Clone source code
         run: |
-          mkdir -p $CT_DIR
-          git clone --depth=1 $CT_URL $CT_DIR
+          git clone --depth=1 $CT_URL $SRC_DIR
+          cd $SRC_DIR
+          sed -i '/cp -f/d' Makefile
       - name: Build toolchain
         run: |
-          cd $SRC_DIR
           make toolchain/build
           cd $BD_DIR
           tar cJf ${{ matrix.target }}.tar.xz *

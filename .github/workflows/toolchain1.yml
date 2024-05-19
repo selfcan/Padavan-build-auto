@@ -25,10 +25,10 @@ jobs:
       - name: Clone source code
         run: |
           git clone --depth=1 $CT_URL $SRC_DIR
-          cd $SRC_DIR
-          sed -i '/cp -f/d' Makefile
       - name: Build toolchain
         run: |
+          cd $SRC_DIR
+          sed -i '/cp -f/d' Makefile
           make toolchain/build
           cd $BD_DIR
           tar cJf ${{ matrix.target }}.tar.xz *

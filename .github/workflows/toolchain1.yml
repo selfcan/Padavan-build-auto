@@ -7,7 +7,7 @@ env:
   CT_DIR: crosstool-ng
   TC_DIR: crosstool-ng/toolchain-mipsel
   BD_DIR: crosstool-ng/toolchain-mipsel/toolchain-3.4.x
-  CT_URL: https://github.com/vipshmily/Padavan-KVR.git
+  CT_URL: https://github.com/vipshmily/Padavan-3.4-KVR.git
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -14,7 +14,7 @@ on:
         required: false
 env:
   TNAME: ${{ github.event.inputs.production }}
-  REPOSITORY_URL: https://github.com/vipshmily/padavan-4.4.git
+  REPOSITORY_URL: https://github.com/vipshmily/padavan.git
   
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@main
     - uses: hendrikmuhs/ccache-action@main
       with:
-        key: ${{ github.event.inputs.production }}-4.4
+        key: ${{ github.event.inputs.production }}-4.4-musl
     - uses: actions/setup-go@main
       with:
         go-version: '1.22'
